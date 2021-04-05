@@ -2,6 +2,7 @@
 
 
 #include "Floater.h"
+#include "Components/StaticMeshComponent.h"
 
 // Sets default values
 AFloater::AFloater()
@@ -11,13 +12,50 @@ AFloater::AFloater()
 
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CustomStaticMesh"));
 
+	InitialLocation = FVector(0.0f);
+	PlacedLocation = FVector(0.0f);
+	WorldOrigin = FVector(0.0f, 0.0f, 0.0f);
+
+	InitialDirection = FVector(0.0f, 0.0f, 0.0f);
+
+	bInitializeFloaterLocations = false;
+	bShouldFloat = false;
+
+	InitialForce = FVector(10000000.f, 0.0f, 0.0f);
+	InitialTorque = FVector(0.0f, 0.0f, 0.0f);
+
+	RunningTime = 0.f;
+
+	A = 0.f;
+	B = 0.f;
+	C = 0.f;
+	D = 0.f;
 }
 
 // Called when the game starts or when spawned
 void AFloater::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	float InitialX = FMath::FRandRange(-500.f,500.f);
+	float InitialY = FMath::FRandRange(-500.f, 500.f);
+	float InitialZ = FMath::FRandRange(-5.f, 200.f);
+
+	InitialLocation.X = InitialX;
+	InitialLocation.Y = InitialY;
+	InitialLocation.Z = InitialZ;
+
+	//InitialLocation *= 20.f;
+
+	PlacedLocation = GetActorLocation();
+
+	if(bInitializeFloaterLocations)
+		SetActorLocation(InitialLocation);
+
+	BaseZLocation = PlacedLocation.Z;
+		
+	//StaticMesh->AddForce(InitialForce);
+	//StaticMesh->AddTorqueInDegrees(InitialTorque);
 }
 
 // Called every frame
@@ -25,5 +63,17 @@ void AFloater::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	
+	if (bShouldFloat) {
+		
+		FVector NewLocation = GetActorLocation();
+		NewLocation.Z = BaseZLocation + A * FMath::Sin(B*RunningTime-C)+D; //Period = 2* PI /ABS(B)
+
+		SetActorLocation(NewLocation);
+		RunningTime += DeltaTime;
+	}
+
+	//FRotator Rotation = FRotator(0.0f, 0.0f, 0.0f)*DeltaTime;
+	//AddActorWorldRotation(Rotation);
 }
 
