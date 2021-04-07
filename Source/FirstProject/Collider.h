@@ -13,8 +13,7 @@ class FIRSTPROJECT_API ACollider : public APawn
 
 public:
 	// Sets default values for this pawn's properties
-	ACollider();
-
+	ACollider();	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

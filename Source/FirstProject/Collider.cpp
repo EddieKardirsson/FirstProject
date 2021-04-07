@@ -84,7 +84,7 @@ void ACollider::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void ACollider::MoveForward(float input) {
 	
-	FVector Forward = GetActorForwardVector();
+	FVector Forward = GetActorForwardVector() * 32.f;
 	//AddMovementInput(Forward * input);
 	if (OurMovementComponent)
 		OurMovementComponent->AddInputVector(Forward * input);
@@ -92,7 +92,7 @@ void ACollider::MoveForward(float input) {
 
 void ACollider::MoveRight(float input) {
 
-	FVector Right = GetActorRightVector();
+	FVector Right = GetActorRightVector() *  32.f;
 	//AddMovementInput(Right * input);
 	if (OurMovementComponent)
 		OurMovementComponent->AddInputVector(Right * input);
