@@ -17,7 +17,7 @@ void UColliderMovementComponent::TickComponent(float DeltaTime, enum ELevelTick 
 
 		// If we bump into something, slide along the side of it
 		if (Hit.IsValidBlockingHit()) {
-			SlideAlongSurface(DesiredMovementThisFrame, 1.f - Hit.Time, Hit, Hit.Normal, Hit);
+			SlideAlongSurface(DesiredMovementThisFrame, 1.f - Hit.Time, Hit.Normal, Hit);
 		}
 	}
 }
