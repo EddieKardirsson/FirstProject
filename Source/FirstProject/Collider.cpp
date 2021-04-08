@@ -84,18 +84,18 @@ void ACollider::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void ACollider::MoveForward(float input) {
 	
-	FVector Forward = GetActorForwardVector() * 32.f;
+	FVector Forward = GetActorForwardVector();
 	//AddMovementInput(Forward * input);
 	if (OurMovementComponent)
-		OurMovementComponent->AddInputVector(Forward * input);
+		OurMovementComponent->AddInputVector(Forward * input * 3200.f);
 }
 
 void ACollider::MoveRight(float input) {
 
-	FVector Right = GetActorRightVector() *  32.f;
+	FVector Right = GetActorRightVector();
 	//AddMovementInput(Right * input);
 	if (OurMovementComponent)
-		OurMovementComponent->AddInputVector(Right * input);
+		OurMovementComponent->AddInputVector(Right * input * 3200.f);
 }
 
 void ACollider::YawCamera(float AxisValue) {
