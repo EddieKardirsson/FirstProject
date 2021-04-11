@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "Engine/World.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 AMain::AMain()
@@ -20,7 +21,7 @@ AMain::AMain()
 	CameraBoom->bUsePawnControlRotation = true;  // Rotate arm based on the controller
 
 	// Set size for capsule collider
-	GetCapsuleComponent()->SetCapsuleSize(48.f, 104.f);
+	GetCapsuleComponent()->SetCapsuleSize(50.f, 105.f);
 
 	// Initiate FollowCamera (the camera component for the third person camera)
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
@@ -39,6 +40,12 @@ AMain::AMain()
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
 	
+	// Configure character movement
+	GetCharacterMovement()->bOrientRotationToMovement = true;	//Character moves in the direction of input...
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 540.f, 0.f); // ...at this rotation rate.
+	GetCharacterMovement()->JumpZVelocity = 650.f;
+	GetCharacterMovement()->AirControl = 0.3f;	
+
 }
 
 // Called when the game starts or when spawned
