@@ -26,6 +26,14 @@ public:
 	/** Door to move when the floor is stepped on */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "FloorSwitch")
 	UStaticMeshComponent* Door;
+
+	/** Initial location for the door */
+	UPROPERTY(BlueprintReadWrite, Category = "floorSwitch")
+	FVector InitialDoorLocation;
+
+	/** Initial location for the floor switch */
+	UPROPERTY(BlueprintReadWrite, Category = "floorSwitch")
+	FVector InitialSwitchLocation;
 	
 protected:
 	// Called when the game starts or when spawned
@@ -43,4 +51,19 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = FloorSwitch)
 	void RaiseDoor();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = FloorSwitch)
+	void LowerDoor();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = FloorSwitch)
+	void RaiseFloorSwitch();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = FloorSwitch)
+	void LowerFloorSwitch();
+
+	UFUNCTION(BlueprintCallable, Category = FloorSwitch)
+	void UpdateDoorLocation(float Z);
+
+	UFUNCTION(BlueprintCallable, Category = FloorSwitch)
+	void UpdateFloorSwitchLocation(float Z);
 };
