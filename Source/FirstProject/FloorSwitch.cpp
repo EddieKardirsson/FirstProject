@@ -29,7 +29,8 @@ AFloorSwitch::AFloorSwitch()
 	Door = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Door"));
 	Door->SetupAttachment(GetRootComponent());
 
-	SwitchTime = 2.f;
+	SwitchTime = 3.f;
+	bCharacterOnSwitch = false;
 }
 
 // Called when the game starts or when spawned
@@ -53,12 +54,14 @@ void AFloorSwitch::Tick(float DeltaTime)
 
 void AFloorSwitch::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) {
 	UE_LOG(LogTemp, Warning, TEXT("Overlap Begin"));
+	if(!bCharacterOnSwitch) bCharacterOnSwitch = true;
 	RaiseDoor();
 	LowerFloorSwitch();
 }
 
 void AFloorSwitch::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) {
 	UE_LOG(LogTemp, Warning, TEXT("Overlap End"));
+	if (bCharacterOnSwitch) bCharacterOnSwitch = false;
 	GetWorldTimerManager().SetTimer(SwitchHandle, this, &AFloorSwitch::CloseDoor, SwitchTime);
 }
 
@@ -75,6 +78,8 @@ void AFloorSwitch::UpdateFloorSwitchLocation(float Z) {
 }
 
 void AFloorSwitch::CloseDoor(){
-	LowerDoor();
-	RaiseFloorSwitch();
+	if(!bCharacterOnSwitch){
+		LowerDoor();
+		RaiseFloorSwitch();	
+	}
 }

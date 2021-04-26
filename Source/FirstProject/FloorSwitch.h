@@ -41,6 +41,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "floorSwitch")
 	float SwitchTime;
 
+	bool bCharacterOnSwitch;
+
 	void CloseDoor();
 
 protected:
