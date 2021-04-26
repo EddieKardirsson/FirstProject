@@ -4,6 +4,8 @@
 #include "FloorSwitch.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
+//#include "Engine/EngineTypes.h"
+#include "TimerManager.h"
 
 // Sets default values
 AFloorSwitch::AFloorSwitch()
@@ -26,6 +28,8 @@ AFloorSwitch::AFloorSwitch()
 
 	Door = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Door"));
 	Door->SetupAttachment(GetRootComponent());
+
+	SwitchTime = 2.f;
 }
 
 // Called when the game starts or when spawned
@@ -55,8 +59,7 @@ void AFloorSwitch::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AAct
 
 void AFloorSwitch::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) {
 	UE_LOG(LogTemp, Warning, TEXT("Overlap End"));
-	LowerDoor();
-	RaiseFloorSwitch();
+	GetWorldTimerManager().SetTimer(SwitchHandle, this, &AFloorSwitch::CloseDoor, SwitchTime);
 }
 
 void AFloorSwitch::UpdateDoorLocation(float Z) {
@@ -69,4 +72,9 @@ void AFloorSwitch::UpdateFloorSwitchLocation(float Z) {
 	FVector NewLocation = InitialSwitchLocation;
 	NewLocation.Z += Z;
 	FloorSwitch->SetWorldLocation(NewLocation);
+}
+
+void AFloorSwitch::CloseDoor(){
+	LowerDoor();
+	RaiseFloorSwitch();
 }
