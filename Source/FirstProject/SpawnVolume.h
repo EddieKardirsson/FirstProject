@@ -29,6 +29,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION(BlueprintPure, Category = Spawning)
+	UFUNCTION(BlueprintPure, Category = Spawning) //Blueprint pure function
 	FVector GetSpawnPoint();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = Spawning)
+	void SpawnOurPawn(UClass* ToSpawn, const FVector& Location);
 };
