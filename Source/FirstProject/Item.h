@@ -31,6 +31,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item | Particles")
 	class UParticleSystem* OverlapParticles;
 
+	/** Pickup fx sound */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item | SFX")
+	class USoundCue* OverlapSound;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
