@@ -19,6 +19,18 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Item | Collision")
 	class USphereComponent* CollisionVolume;
 
+	/** Base Mesh Component */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Item | Mesh")
+	class UStaticMeshComponent* Mesh;
+
+	/** Object idle particles */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item | Particles")
+	class UParticleSystemComponent* IdleParticlesComponent;
+
+	/** Particle effect when overlapped with player */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item | Particles")
+	class UParticleSystem* OverlapParticles;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
