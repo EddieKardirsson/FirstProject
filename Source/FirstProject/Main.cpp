@@ -46,6 +46,13 @@ AMain::AMain()
 	GetCharacterMovement()->JumpZVelocity = 650.f;
 	GetCharacterMovement()->AirControl = 0.3f;	
 
+	MaxHealth = 100.f;
+	Health = 90.f;
+	MaxMana = 100.f;
+	Mana = 100.f;
+	MaxStamina = 100.f;
+	Stamina = 100.f;
+	Coins = 0.f;
 }
 
 // Called when the game starts or when spawned
