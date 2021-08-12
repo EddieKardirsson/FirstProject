@@ -7,6 +7,8 @@
 #include "Engine/World.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Containers/Array.h"
 
 // Sets default values
 AMain::AMain()
@@ -47,7 +49,7 @@ AMain::AMain()
 	GetCharacterMovement()->AirControl = 0.3f;	
 
 	MaxHealth = 100.f;
-	Health = 90.f;
+	Health = 100.f;
 	MaxMana = 100.f;
 	Mana = 100.f;
 	MaxStamina = 100.f;
@@ -57,13 +59,25 @@ AMain::AMain()
 	RunningSpeed = 650.f;
 	SprintingSpeed = 950.f;
 	bShiftKeyDown = false;
+
+	//Init enums
+	MovementStatus = EMovementStatus::EMS_Normal;
+	StaminaStatus = EStaminaStatus::ESS_Normal;
+	ManaStatus = EManaStatus::EMS_Normal;
+
+	StaminaDrainRate = 10.f;
+	StaminaRecoverRate = 5.f;
+	MinSprintStamina = 20.f;
+	ManaRegenRate = 5.f;
+	MinMana = 10.f;
 }
 
 // Called when the game starts or when spawned
 void AMain::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	UKismetSystemLibrary::DrawDebugSphere(this, GetActorLocation() + FVector(0.f, 0.f, 75.f), 25.f, 12, FLinearColor::Green, 10.f, .5);
 }
 
 // Called every frame
@@ -71,6 +85,101 @@ void AMain::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	float DeltaStaminaDrain = StaminaDrainRate * DeltaTime;
+	float DeltaStaminaRec = StaminaRecoverRate * DeltaTime;
+	float DeltaManaRegen = ManaRegenRate * DeltaTime;
+
+	switch (StaminaStatus)
+	{
+	case EStaminaStatus::ESS_Normal:
+		if(bShiftKeyDown)
+		{
+			if (Stamina - DeltaStaminaDrain <= MinSprintStamina)
+			{
+				SetStaminaStatus(EStaminaStatus::ESS_BelowMinimum);
+				Stamina -= DeltaStaminaDrain;
+			}
+			else Stamina -= DeltaStaminaDrain;
+			SetMovementStatus(EMovementStatus::EMS_Sprinting);
+		}
+		else //ShiftKey up
+		{
+			if (Stamina + DeltaStaminaRec >= MaxStamina)
+				Stamina = MaxStamina;
+			else Stamina += DeltaStaminaRec;
+			SetMovementStatus(EMovementStatus::EMS_Normal);
+		}
+		break;
+	case EStaminaStatus::ESS_BelowMinimum:
+		if(bShiftKeyDown)
+		{
+			if (Stamina - DeltaStaminaDrain <= 0.f) {
+				SetStaminaStatus(EStaminaStatus::ESS_Exhausted);
+				Stamina = 0.f;
+				SetMovementStatus(EMovementStatus::EMS_Normal);
+			}
+			else 
+			{
+				Stamina -= DeltaStaminaDrain;
+				SetMovementStatus(EMovementStatus::EMS_Sprinting);
+			}
+		}
+		else // ShiftKey up
+		{
+			if(Stamina + DeltaStaminaRec >= MinSprintStamina)
+			{
+				SetStaminaStatus(EStaminaStatus::ESS_Normal);
+				Stamina += DeltaStaminaRec;
+			}
+			else Stamina += DeltaStaminaRec;
+			SetMovementStatus(EMovementStatus::EMS_Normal);
+		}
+		
+		break;
+	case EStaminaStatus::ESS_Exhausted:
+		if (bShiftKeyDown)
+		{
+			Stamina = 0.f;
+		}
+		else // ShiftKey up
+		{
+			SetStaminaStatus(EStaminaStatus::ESS_ExhaustedRecovering);
+			Stamina += DeltaStaminaRec;
+		}
+		SetMovementStatus(EMovementStatus::EMS_Normal);
+		break;
+	case EStaminaStatus::ESS_ExhaustedRecovering:
+		if (Stamina + DeltaStaminaRec >= MinSprintStamina)
+		{
+			SetStaminaStatus(EStaminaStatus::ESS_Normal);
+			Stamina += DeltaStaminaRec;
+		}
+		else Stamina += DeltaStaminaRec;
+		SetMovementStatus(EMovementStatus::EMS_Normal);
+		break;
+	default:
+		;
+	}
+
+	//switch (ManaStatus)
+	//{
+	//case EManaStatus::EMS_Normal:
+	//	if (Mana + DeltaManaRegen >= MaxMana)
+	//		Mana = MaxMana;
+	//	else Mana = DeltaManaRegen;
+	//	break;
+	//case EManaStatus::EMS_BelowMinimum:
+
+	//	break;
+	//case EManaStatus::EMS_Exhausted:
+
+	//	break;
+	//case EManaStatus::EMS_ExhaustedRecovering:
+
+	//	break;
+	//default:
+	//	;
+	//}
 }
 
 // Called to bind functionality to input
@@ -156,3 +265,11 @@ void AMain::ShiftKeyDown() { bShiftKeyDown = true; }
 
 void AMain::ShiftKeyUp() { bShiftKeyDown = false; }
 
+void AMain::ShowPickupLocations()
+{
+	/*for(int32 i = 0; i < PickupLocations.Num(); ++i)
+		UKismetSystemLibrary::DrawDebugSphere(this,PickupLocations[i], 25.f, 8, FLinearColor::Yellow, 10.f, .5);*/
+
+	for(auto Location : PickupLocations)
+		UKismetSystemLibrary::DrawDebugSphere(this, Location, 25.f, 8, FLinearColor::Yellow, 10.f, .5);
+}

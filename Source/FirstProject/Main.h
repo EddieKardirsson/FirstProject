@@ -14,6 +14,26 @@ enum class EMovementStatus : uint8
 	EMS_MAX UMETA(DisplayName = "DefaultMax")
 };
 
+UENUM(BlueprintType)
+enum class EStaminaStatus : uint8
+{
+	ESS_Normal UMETA(DisplayName = "Normal"),
+	ESS_BelowMinimum UMETA(DisplayName = "BelowMinimum"),
+	ESS_Exhausted UMETA(DisplayName = "Exhausted"),
+	ESS_ExhaustedRecovering UMETA(DisplayName = "ExhaustedRecovering"),
+	ESS_MAX UMETA(DisplayName = "DefaultMAX")
+};
+
+UENUM()
+enum class EManaStatus : uint8
+{
+	EMS_Normal UMETA(DisplayName = "Normal"),
+	EMS_BelowMinimum UMETA(DisplayName = "BelowMinimum"),
+	EMS_Exhausted UMETA(DisplayName = "Exhausted"),
+	EMS_ExhaustedRecovering UMETA(DisplayName = "ExhaustedRecovering"),
+	EMS_MAX UMETA(DisplayName = "DefaultMAX")
+};
+
 UCLASS()
 class FIRSTPROJECT_API AMain : public ACharacter
 {
@@ -23,12 +43,44 @@ public:
 	// Sets default values for this character's properties
 	AMain();
 
+	class TArray<FVector> PickupLocations;
+
+	UFUNCTION(BlueprintCallable)
+	void ShowPickupLocations();
+
 	/** The status of the player's movement speed */
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Enums")
 	EMovementStatus MovementStatus;
 
+	/** The status of the player stamina */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Enums")
+	EStaminaStatus StaminaStatus;
+
+	/** The status of the player mana */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Enums")
+	EManaStatus ManaStatus;
+
 	/** Set movement status and running speed */
 	void SetMovementStatus(EMovementStatus Status);
+
+	FORCEINLINE void SetStaminaStatus(EStaminaStatus Status) { StaminaStatus = Status; }
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BaseStats")
+	float StaminaDrainRate;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BaseStats")
+	float StaminaRecoverRate;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BaseStats")
+	float MinSprintStamina;
+
+	FORCEINLINE void SetManaStatus(EManaStatus Status) { ManaStatus = Status; }
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BaseStats")
+	float ManaRegenRate;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BaseStats")
+	float MinMana;
 
 	/** The speed for the default running speed of the player */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "BaseStats")
