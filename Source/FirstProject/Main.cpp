@@ -9,6 +9,10 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Containers/Array.h"
+#include "Weapon.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Animation/AnimInstance.h"
+#include "Animation/AnimMontage.h"
 
 // Sets default values
 AMain::AMain()
@@ -59,6 +63,10 @@ AMain::AMain()
 	RunningSpeed = 650.f;
 	SprintingSpeed = 950.f;
 	bShiftKeyDown = false;
+	bInteractOn = false;
+	bAttacking = false;
+	bPrimaryAttacking = false;
+	bSecondaryAttacking = false;
 
 	//Init enums
 	MovementStatus = EMovementStatus::EMS_Normal;
@@ -195,6 +203,12 @@ void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AMain::ShiftKeyDown);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AMain::ShiftKeyUp);
 
+	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &AMain::InteractOn);
+	PlayerInputComponent->BindAction("Interact", IE_Released, this, &AMain::InteractOff);
+
+	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &AMain::PrimaryAttackOn);
+	PlayerInputComponent->BindAction("PrimaryAttack", IE_Released, this, &AMain::PrimaryAttackOff);
+
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMain::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMain::MoveRight);
 
@@ -207,7 +221,7 @@ void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AMain::MoveForward(float Value) {
 	// Checks if the Controller is NOT a nullpointer and if input Value is NOT zero
-	if ((Controller != nullptr) && (Value != 0.f)) {
+	if ((Controller != nullptr) && (Value != 0.f) && (!bAttacking)) {
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
@@ -219,7 +233,7 @@ void AMain::MoveForward(float Value) {
 
 void AMain::MoveRight(float Value) {
 	// Checks if the Controller is NOT a nullpointer and if input Value is NOT zero
-	if ((Controller != nullptr) && (Value != 0.f)) {
+	if ((Controller != nullptr) && (Value != 0.f) && (!bAttacking)) {
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
@@ -238,6 +252,41 @@ void AMain::LookUpAtRate(float Rate) {
 	
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
+
+void AMain::InteractOn()
+{
+	bInteractOn = true;
+	if(ActiveOverlappingItem)
+	{
+		AWeapon* Weapon = Cast<AWeapon>(ActiveOverlappingItem);
+		if (Weapon)
+		{
+			Weapon->Equip(this);
+			SetActiveOverlappingItem(nullptr);
+		}
+	}
+}
+
+void AMain::InteractOff()
+{
+	bInteractOn = false;	
+}
+
+void AMain::PrimaryAttackOn()
+{
+	bPrimaryAttacking = true;
+	if (EquippedWeapon)
+	{
+		LightAttack();		
+	}
+}
+
+void AMain::PrimaryAttackOff()
+{
+	bPrimaryAttacking = false;
+}
+
+
 
 void AMain::DecrementHealth(float A)
 {
@@ -272,4 +321,38 @@ void AMain::ShowPickupLocations()
 
 	for(auto Location : PickupLocations)
 		UKismetSystemLibrary::DrawDebugSphere(this, Location, 25.f, 8, FLinearColor::Yellow, 10.f, .5);
+}
+
+void AMain::LightAttack()
+{
+	if(!bAttacking)
+	{
+		bAttacking = true;
+
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if (AnimInstance && CombatMontage)
+		{
+			int32 Section = FMath::RandRange(0, 1);
+			switch (Section)
+			{
+			case 0:
+				AnimInstance->Montage_Play(CombatMontage, 2.2f);
+				AnimInstance->Montage_JumpToSection(FName("Attack_1"), CombatMontage);
+				break;
+			case 1:
+				AnimInstance->Montage_Play(CombatMontage, 1.85f);
+				AnimInstance->Montage_JumpToSection(FName("Attack_2"), CombatMontage);
+				break;
+			default:
+				;
+			}			
+		}
+	}
+}
+
+void AMain::LightAttackEnd()
+{
+	bAttacking = false;
+	if (bPrimaryAttacking)
+		LightAttack();
 }
