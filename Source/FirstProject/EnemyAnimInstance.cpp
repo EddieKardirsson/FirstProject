@@ -20,6 +20,7 @@ void UEnemyAnimInstance::UpdateAnimationProperties()
 			Enemy = Cast<AEnemy>(Pawn);
 		}
 	}
+
 	if(Pawn)
 	{
 		FVector Speed = Pawn->GetVelocity();
